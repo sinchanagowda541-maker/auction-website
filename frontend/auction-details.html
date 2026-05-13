@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auction Details - Bidder's Choice</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .details-container {
+            display: flex;
+            gap: 40px;
+            margin-top: 40px;
+        }
+        .details-image {
+            flex: 1;
+        }
+        .details-image img {
+            width: 100%;
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+        }
+        .details-info {
+            flex: 1;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+        }
+        .details-title {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        .details-category {
+            display: inline-block;
+            background: rgba(79, 70, 229, 0.1);
+            color: var(--primary-color);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        .bid-box {
+            background: var(--bg-color);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border: 1px solid var(--border-color);
+        }
+        .bid-box p {
+            margin-bottom: 10px;
+        }
+        .current-bid-amount {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+        .bid-form {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .bid-form input {
+            flex: 1;
+            font-size: 1.2rem;
+        }
+        .time-left {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--danger);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .bids-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .bids-table th, .bids-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .bids-table th {
+            background: var(--bg-color);
+            font-weight: 600;
+        }
+        
+        @media (max-width: 768px) {
+            .details-container {
+                flex-direction: column;
+            }
+        }
+        
+        /* Image Gallery */
+        .thumbnails {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            overflow-x: auto;
+        }
+        .thumbnail {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            opacity: 0.6;
+            transition: all 0.2s;
+        }
+        .thumbnail:hover, .thumbnail.active {
+            opacity: 1;
+            border-color: var(--primary-color);
+        }
+
+        /* Chat Panel */
+        .chat-panel {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            height: 400px;
+        }
+        .chat-header {
+            background: var(--bg-color);
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            border-radius: 12px 12px 0 0;
+        }
+        .chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .chat-message {
+            background: #f1f5f9;
+            padding: 10px 15px;
+            border-radius: 15px;
+            align-self: flex-start;
+            max-width: 80%;
+        }
+        .chat-message.self {
+            background: var(--primary-color);
+            color: white;
+            align-self: flex-end;
+        }
+        .chat-message .meta {
+            font-size: 0.75rem;
+            opacity: 0.8;
+            margin-bottom: 3px;
+            font-weight: 600;
+        }
+        .chat-input-area {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid var(--border-color);
+            gap: 10px;
+        }
+        
+        /* Similar Auctions */
+        .auctions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-gavel"></i> Bidder's Choice
+            </a>
+            <div class="nav-links" id="nav-links">
+                <!-- JS Injected -->
+            </div>
+        </div>
+    </nav>
+
+    <div class="container section">
+        <div id="loading" class="loading-spinner"></div>
+        <div id="content" style="display: none;">
+            <div class="details-container">
+                <div class="details-image">
+                    <img id="auction-img" src="" alt="Auction Image" style="height: 400px; object-fit: cover;">
+                    <div class="thumbnails" id="image-thumbnails">
+                        <!-- Thumbnails injected here -->
+                    </div>
+                </div>
+                <div class="details-info">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <span class="details-category" id="auction-category"></span>
+                        <button id="end-auction-btn" class="btn" style="display:none; background: #fee2e2; color: #dc2626; border: 1px solid #dc2626; padding: 5px 15px;">End Auction Now</button>
+                    </div>
+                    
+                    <h1 class="details-title" id="auction-title"></h1>
+                    
+                    <div class="time-left">
+                        <i class="far fa-clock"></i> 
+                        <span id="countdown" class="countdown-timer"></span>
+                    </div>
+
+                    <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--border-color);">
+                        <p style="margin-bottom: 5px;"><strong><i class="fas fa-user"></i> Hosted by:</strong> <span id="host-name"></span></p>
+                        <p style="margin-bottom: 5px;"><strong><i class="fas fa-envelope"></i> Email:</strong> <span id="host-email"></span></p>
+                        <p style="margin-bottom: 5px;"><strong><i class="fas fa-phone"></i> Phone:</strong> <span id="host-phone"></span></p>
+                        <p style="margin-bottom: 5px;"><strong><i class="fas fa-map-marker-alt"></i> Location:</strong> <span id="host-address"></span></p>
+                        <p style="margin-bottom: 5px;"><strong><i class="far fa-calendar-plus"></i> Start:</strong> <span id="start-date"></span></p>
+                        <p><strong><i class="far fa-calendar-check"></i> End:</strong> <span id="end-date"></span></p>
+                    </div>
+
+                    <p id="auction-desc" class="text-muted mb-3" style="line-height: 1.8;"></p>
+
+                    <div class="bid-box">
+                        <p class="text-muted">Current Highest Bid</p>
+                        <div class="current-bid-amount" id="current-bid">$0.00</div>
+                        <p class="text-muted mt-2" style="font-size: 0.9rem;">Starting Price: $<span id="starting-price">0.00</span></p>
+                        
+                        <form class="bid-form" id="bid-form">
+                            <input type="number" id="bid-amount" class="form-control" step="0.01" required placeholder="Enter amount">
+                            <button type="submit" class="btn btn-primary" id="bid-btn">Place Bid</button>
+                        </form>
+                        <p id="login-prompt" style="display:none; color: var(--danger); margin-top: 10px;">Please <a href="login.html">login</a> as a buyer to place a bid.</p>
+                    </div>
+
+                    <h3 class="mt-4 mb-2">Bidding History</h3>
+                    <div style="max-height: 300px; overflow-y: auto;">
+                        <table class="bids-table">
+                            <thead>
+                                <tr>
+                                    <th>Bidder</th>
+                                    <th>Amount</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bids-tbody">
+                                <!-- Bids injected via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Chat Panel -->
+                    <div class="chat-panel">
+                        <div class="chat-header">
+                            <i class="fas fa-comments"></i> Live Auction Chat
+                        </div>
+                        <div class="chat-messages" id="chat-messages">
+                            <div class="text-center text-muted" style="margin: auto;">Loading chat...</div>
+                        </div>
+                        <form class="chat-input-area" id="chat-form">
+                            <input type="text" id="chat-input" class="form-control" placeholder="Type a message..." required>
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i></button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Similar Suggestions -->
+            <div style="margin-top: 60px; border-top: 1px solid var(--border-color); padding-top: 40px;">
+                <h2 style="margin-bottom: 10px;">Similar Items You Might Like</h2>
+                <p class="text-muted">Browse other live auctions in this category</p>
+                <div class="auctions-grid" id="similar-auctions">
+                    <p>Loading suggestions...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const auctionId = urlParams.get('id');
+        let currentHighestBid = 0;
+        let isAuctionActive = true;
+
+        let socket;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!auctionId || auctionId === 'undefined') {
+                document.getElementById('loading').style.display = 'none';
+                const content = document.getElementById('content');
+                content.style.display = 'block';
+                content.innerHTML = `
+                    <div style="text-align: center; padding: 50px;">
+                        <h2><i class="fas fa-exclamation-triangle" style="color: var(--danger);"></i> Product Not Found</h2>
+                        <p class="text-muted" style="margin: 20px 0;">We couldn't find the auction you are looking for.</p>
+                        <a href="index.html" class="btn btn-primary">Go Back Home</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Connect to Socket
+            socket = io('http://localhost:5000');
+            socket.emit('join_auction', auctionId);
+            
+            setupSocketListeners();
+            
+            loadAuctionDetails();
+            loadBids();
+            loadSimilarAuctions();
+            
+            // Check auth for bidding form
+            const user = getUser();
+            if (!user || user.role !== 'buyer') {
+                document.getElementById('bid-form').style.display = 'none';
+                if (!user) {
+                    document.getElementById('login-prompt').style.display = 'block';
+                } else if (user.role === 'seller') {
+                    document.getElementById('login-prompt').innerText = 'Sellers cannot place bids.';
+                    document.getElementById('login-prompt').style.display = 'block';
+                }
+            }
+        });
+
+        async function loadAuctionDetails() {
+            try {
+                let auction;
+                if (parseInt(auctionId) >= 990) {
+                    const now = new Date().getTime();
+                    const dummyEnd = new Date(now + 3 * 24 * 60 * 60 * 1000).toISOString();
+                    const dummyStart = new Date(now - 1 * 24 * 60 * 60 * 1000).toISOString();
+                    const dummyData = {
+                        991: { id: 991, seller_id: 1, title: 'Vintage Rolex Submariner', category: 'Watches', description: 'A classic 1970s Rolex Submariner in excellent condition with original box and papers. Beautiful patina on the dial.', start_date: dummyStart, end_date: dummyEnd, image_url: 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&w=800&q=80', current_highest_bid: 15500.00, starting_price: 15000.00, host_name: 'LuxuryTimepieces', host_email: 'contact@luxury.com', host_phone: '555-0192', address: 'Geneva, Switzerland', all_images: ['https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&w=800&q=80'] },
+                        992: { id: 992, seller_id: 1, title: 'First Edition Harry Potter', category: 'Books', description: 'Rare first edition, first printing of Harry Potter and the Philosopher\'s Stone. Hardcover, UK edition.', start_date: dummyStart, end_date: dummyEnd, image_url: 'https://images.unsplash.com/photo-1626618012641-bfbca5a31239?auto=format&fit=crop&w=800&q=80', current_highest_bid: 45000.00, starting_price: 40000.00, host_name: 'RareBooks Ltd', host_email: 'books@rare.com', host_phone: '555-9921', address: 'London, UK', all_images: ['https://images.unsplash.com/photo-1626618012641-bfbca5a31239?auto=format&fit=crop&w=800&q=80'] },
+                        993: { id: 993, seller_id: 1, title: 'Signed Michael Jordan Jersey', category: 'Sports', description: 'Authentic Chicago Bulls jersey signed by Michael Jordan during the 1996 championship season. Includes certificate of authenticity.', start_date: dummyStart, end_date: dummyEnd, image_url: 'https://images.unsplash.com/photo-1519861531473-9200262188bf?auto=format&fit=crop&w=800&q=80', current_highest_bid: 8200.00, starting_price: 5000.00, host_name: 'SportsMem', host_email: 'sales@sportsmem.com', host_phone: '555-8833', address: 'Chicago, IL', all_images: ['https://images.unsplash.com/photo-1519861531473-9200262188bf?auto=format&fit=crop&w=800&q=80'] },
+                        994: { id: 994, seller_id: 1, title: 'Leica M6 Classic Camera', category: 'Electronics', description: 'Pristine condition Leica M6 film camera from 1995. Fully mechanical, recently CLA\'d and ready to shoot.', start_date: dummyStart, end_date: dummyEnd, image_url: 'https://images.unsplash.com/photo-1516961642265-531546e84af2?auto=format&fit=crop&w=800&q=80', current_highest_bid: 3100.00, starting_price: 2500.00, host_name: 'VintagePhoto', host_email: 'hello@vintagephoto.com', host_phone: '555-7722', address: 'Berlin, Germany', all_images: ['https://images.unsplash.com/photo-1516961642265-531546e84af2?auto=format&fit=crop&w=800&q=80'] },
+                        995: { id: 995, seller_id: 1, title: 'Patek Philippe Nautilus', category: 'Watches', description: 'Stunning Patek Philippe Nautilus 5711 in stainless steel with blue dial. The holy grail of sports watches.', start_date: dummyStart, end_date: dummyEnd, image_url: 'https://images.unsplash.com/photo-1548171915-e7afefaedbc1?auto=format&fit=crop&w=800&q=80', current_highest_bid: 85000.00, starting_price: 80000.00, host_name: 'LuxuryTimepieces', host_email: 'contact@luxury.com', host_phone: '555-0192', address: 'Geneva, Switzerland', all_images: ['https://images.unsplash.com/photo-1548171915-e7afefaedbc1?auto=format&fit=crop&w=800&q=80'] }
+                    };
+                    auction = dummyData[auctionId];
+                    if (!auction) throw new Error("Item not found");
+                } else {
+                    auction = await fetchAPI(`/auctions/${auctionId}`);
+                }
+                
+                // Render Image Gallery
+                let allImages = auction.all_images || [];
+                // Add the primary image to the list if not present
+                if(!allImages.includes(auction.image_url)) {
+                    allImages.unshift(auction.image_url);
+                }
+                
+                const thumbContainer = document.getElementById('image-thumbnails');
+                thumbContainer.innerHTML = '';
+                
+                allImages.forEach((img, idx) => {
+                    let fullImg = img;
+                    if(fullImg.startsWith('/')) fullImg = `http://localhost:5000${fullImg}`;
+                    
+                    if (idx === 0) {
+                        document.getElementById('auction-img').src = fullImg;
+                    }
+                    
+                    const thumb = document.createElement('img');
+                    thumb.src = fullImg;
+                    thumb.className = `thumbnail ${idx === 0 ? 'active' : ''}`;
+                    thumb.onclick = (e) => {
+                        document.getElementById('auction-img').src = fullImg;
+                        document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+                        e.target.classList.add('active');
+                    };
+                    thumbContainer.appendChild(thumb);
+                });
+                
+                document.getElementById('auction-category').innerText = auction.category;
+                document.getElementById('auction-title').innerText = auction.title;
+                document.getElementById('auction-desc').innerText = auction.description;
+                document.getElementById('current-bid').innerText = `$${auction.current_highest_bid}`;
+                document.getElementById('starting-price').innerText = auction.starting_price;
+                
+                // New Host Details
+                document.getElementById('host-name').innerText = auction.host_name || 'Unknown User';
+                document.getElementById('host-email').innerText = auction.host_email || 'Not provided';
+                document.getElementById('host-phone').innerText = auction.host_phone || 'Not provided';
+                document.getElementById('host-address').innerText = auction.address || 'No location provided';
+                document.getElementById('start-date').innerText = new Date(auction.start_date).toLocaleString();
+                document.getElementById('end-date').innerText = new Date(auction.end_date).toLocaleString();
+                
+                const countdownElem = document.getElementById('countdown');
+                countdownElem.dataset.end = auction.end_date;
+                
+                currentHighestBid = parseFloat(auction.current_highest_bid);
+                document.getElementById('bid-amount').min = (currentHighestBid + 1).toFixed(2);
+                
+                const endDate = new Date(auction.end_date).getTime();
+                const user = getUser();
+                
+                if (endDate < new Date().getTime()) {
+                    isAuctionActive = false;
+                    document.getElementById('bid-form').style.display = 'none';
+                    document.getElementById('login-prompt').innerText = 'This auction has ended.';
+                    document.getElementById('login-prompt').style.display = 'block';
+                    document.getElementById('login-prompt').style.color = 'var(--text-muted)';
+                    document.getElementById('end-auction-btn').style.display = 'none';
+                } else {
+                    if (user && user.id === auction.seller_id) {
+                        document.getElementById('end-auction-btn').style.display = 'block';
+                        document.getElementById('bid-form').style.display = 'none';
+                    }
+                }
+
+                initTimers();
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+            } catch (error) {
+                showToast('Failed to load auction details', 'error');
+            }
+        }
+
+        document.getElementById('end-auction-btn').addEventListener('click', async () => {
+            if(!confirm('Are you sure you want to end this auction right now?')) return;
+            try {
+                const btn = document.getElementById('end-auction-btn');
+                btn.disabled = true;
+                btn.innerText = 'Ending...';
+                
+                await fetchAPI(`/auctions/${auctionId}/end`, {
+                    method: 'POST'
+                });
+                
+                showToast('Auction ended successfully!');
+                setTimeout(() => window.location.reload(), 1000);
+            } catch(error) {
+                showToast(error.message, 'error');
+                document.getElementById('end-auction-btn').disabled = false;
+                document.getElementById('end-auction-btn').innerText = 'End Auction Now';
+            }
+        });
+
+        async function loadBids() {
+            try {
+                let bids = [];
+                if (parseInt(auctionId) >= 990) {
+                    const now = new Date().getTime();
+                    bids = [
+                        { bidder_name: 'John Doe', bid_amount: '15500.00', bid_time: new Date(now - 1000 * 60 * 5).toISOString() },
+                        { bidder_name: 'Jane Smith', bid_amount: '15200.00', bid_time: new Date(now - 1000 * 60 * 30).toISOString() },
+                        { bidder_name: 'Anonymous', bid_amount: '15000.00', bid_time: new Date(now - 1000 * 60 * 60).toISOString() }
+                    ];
+                } else {
+                    bids = await fetchAPI(`/auctions/${auctionId}/bids`);
+                }
+                const tbody = document.getElementById('bids-tbody');
+                tbody.innerHTML = '';
+                
+                if(bids.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">No bids yet. Be the first!</td></tr>';
+                    return;
+                }
+
+                bids.forEach(bid => {
+                    const tr = document.createElement('tr');
+                    const date = new Date(bid.bid_time).toLocaleString();
+                    tr.innerHTML = `
+                        <td>${bid.bidder_name}</td>
+                        <td style="font-weight:600; color:var(--primary-color)">$${bid.bid_amount}</td>
+                        <td class="text-muted" style="font-size:0.9rem">${date}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        document.getElementById('bid-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!isAuctionActive) return showToast('Auction has ended', 'error');
+
+            const amount = parseFloat(document.getElementById('bid-amount').value);
+            if (amount <= currentHighestBid) {
+                return showToast('Bid must be higher than current bid', 'error');
+            }
+
+            const btn = document.getElementById('bid-btn');
+            try {
+                btn.disabled = true;
+                btn.innerHTML = 'Placing...';
+                
+                await fetchAPI(`/auctions/${auctionId}/bid`, {
+                    method: 'POST',
+                    body: JSON.stringify({ bid_amount: amount })
+                });
+
+                document.getElementById('bid-amount').value = '';
+                // Note: We don't loadAuctionDetails manually here because socket 'new_bid' handles it.
+            } catch (error) {
+                showToast(error.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Place Bid';
+            }
+        });
+
+        // Chat Form Submission
+        document.getElementById('chat-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            if (!message) return;
+            
+            const user = getUser();
+            if(!user) return showToast('Please login to chat', 'error');
+
+            socket.emit('send_chat', {
+                auctionId: auctionId,
+                userId: user.id,
+                message: message
+            });
+            input.value = '';
+        });
+
+        function setupSocketListeners() {
+            socket.on('chat_history', (messages) => {
+                const container = document.getElementById('chat-messages');
+                container.innerHTML = '';
+                if(messages.length === 0) {
+                    container.innerHTML = '<div class="text-center text-muted" style="margin: auto;" id="no-chat-msg">No messages yet. Be the first!</div>';
+                } else {
+                    messages.forEach(msg => appendChatMessage(msg));
+                }
+            });
+
+            socket.on('receive_chat', (msg) => {
+                const noMsg = document.getElementById('no-chat-msg');
+                if(noMsg) noMsg.remove();
+                appendChatMessage(msg);
+            });
+
+            socket.on('new_bid', (data) => {
+                // Update Highest Bid UI instantly
+                currentHighestBid = parseFloat(data.bid_amount);
+                document.getElementById('current-bid').innerText = `$${currentHighestBid.toFixed(2)}`;
+                document.getElementById('bid-amount').min = (currentHighestBid + 1).toFixed(2);
+                
+                // Add to history
+                const tbody = document.getElementById('bids-tbody');
+                const emptyRow = tbody.querySelector('td[colspan="3"]');
+                if(emptyRow) emptyRow.parentElement.remove();
+                
+                const tr = document.createElement('tr');
+                const date = new Date(data.bid_time).toLocaleString();
+                tr.innerHTML = `
+                    <td>${data.bidder_name}</td>
+                    <td style="font-weight:600; color:var(--primary-color)">$${data.bid_amount}</td>
+                    <td class="text-muted" style="font-size:0.9rem">${date}</td>
+                `;
+                tbody.insertBefore(tr, tbody.firstChild);
+                
+                showToast(`New bid placed: $${data.bid_amount} by ${data.bidder_name}`);
+            });
+        }
+
+        function appendChatMessage(msg) {
+            const container = document.getElementById('chat-messages');
+            const user = getUser();
+            const isSelf = user && user.id === msg.user_id;
+            
+            const div = document.createElement('div');
+            div.className = `chat-message ${isSelf ? 'self' : ''}`;
+            const time = new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            div.innerHTML = `
+                <div class="meta">${isSelf ? 'You' : msg.user_name} • ${time}</div>
+                <div>${msg.message}</div>
+            `;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        async function loadSimilarAuctions() {
+            try {
+                const container = document.getElementById('similar-auctions');
+                const similar = await fetchAPI(`/auctions/${auctionId}/similar`);
+                
+                if (similar.length === 0) {
+                    container.innerHTML = '<p class="text-muted">No similar active auctions found.</p>';
+                    return;
+                }
+
+                container.innerHTML = similar.map(auction => {
+                    let imgUrl = auction.image_url;
+                    if(imgUrl.startsWith('/')) imgUrl = `http://localhost:5000${imgUrl}`;
+                    
+                    return `
+                    <div class="card auction-card" style="box-shadow: var(--shadow-sm);">
+                        <div class="card-img-wrapper">
+                            <img src="${imgUrl}" alt="${auction.title}" class="card-img">
+                        </div>
+                        <div class="auction-content" style="padding: 15px;">
+                            <h3 class="auction-title" style="font-size: 1.1rem; margin-bottom: 5px;">${auction.title}</h3>
+                            <div class="auction-price" style="margin-bottom: 10px;">
+                                <span>Current Bid</span>
+                                <strong>$${Number(auction.current_highest_bid).toFixed(2)}</strong>
+                            </div>
+                            <a href="auction-details.html?id=${auction.id}" class="btn btn-outline btn-block" style="padding: 8px;">View</a>
+                        </div>
+                    </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                document.getElementById('similar-auctions').innerHTML = '<p class="text-error">Failed to load suggestions.</p>';
+            }
+        }
+    </script>
+</body>
+</html>

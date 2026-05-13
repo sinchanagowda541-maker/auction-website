@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unified Dashboard - Bidder's Choice</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .dashboard-header {
+            background: white;
+            padding: 30px 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 30px;
+        }
+        .user-welcome {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            background: rgba(79, 70, 229, 0.1);
+            color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        .tab-navigation {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: var(--transition);
+            border-radius: var(--radius);
+        }
+        .tab-btn:hover {
+            background: rgba(79, 70, 229, 0.05);
+            color: var(--primary-color);
+        }
+        .tab-btn.active {
+            color: white;
+            background: var(--primary-color);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .auctions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        /* Activity History Table */
+        .activity-table-wrapper {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            overflow-x: auto;
+            margin-bottom: 30px;
+        }
+        .activity-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .activity-table th, .activity-table td {
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .activity-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        .activity-table tbody tr:hover {
+            background: #f8fafc;
+        }
+        .section-title {
+            margin-bottom: 15px;
+            font-size: 1.25rem;
+            color: var(--text-color);
+            border-left: 4px solid var(--primary-color);
+            padding-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-gavel"></i> Bidder's Choice
+            </a>
+            <div class="nav-links" id="nav-links">
+                <!-- Populated by main.js -->
+            </div>
+            <button class="mobile-menu-btn" id="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <header class="dashboard-header">
+        <div class="container">
+            <div class="user-welcome">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div>
+                    <h1 id="user-name">Welcome!</h1>
+                    <p class="text-muted" id="user-email">Manage your auctions and bids</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="tab-navigation">
+            <button class="tab-btn active" onclick="switchTab('browse')"><i class="fas fa-search"></i> Browse Auctions</button>
+            <button class="tab-btn" onclick="switchTab('selling')"><i class="fas fa-store"></i> My Listings</button>
+            <button class="tab-btn" onclick="switchTab('activity')"><i class="fas fa-history"></i> Activity History</button>
+            <button class="tab-btn" onclick="switchTab('profile')"><i class="fas fa-user-circle"></i> My Profile</button>
+        </div>
+
+        <!-- BROWSE AUCTIONS TAB -->
+        <div id="tab-browse" class="tab-content active">
+            <div class="flex" style="justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>Live Auctions</h2>
+            </div>
+            <div id="live-auctions" class="auctions-grid">
+                <p>Loading live auctions...</p>
+            </div>
+        </div>
+
+        <!-- MY LISTINGS TAB -->
+        <div id="tab-selling" class="tab-content">
+            <div class="flex" style="justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>My Hosted Auctions</h2>
+                <button class="btn btn-primary" onclick="document.getElementById('add-modal').style.display='flex'">
+                    <i class="fas fa-plus"></i> Create New Auction
+                </button>
+            </div>
+            <div id="my-auctions" class="auctions-grid">
+                <p>Loading your auctions...</p>
+            </div>
+        </div>
+
+        <!-- ACTIVITY HISTORY TAB -->
+        <div id="tab-activity" class="tab-content">
+            <h2>Your Activity</h2>
+            <p class="text-muted" style="margin-bottom: 20px;">Review the bids you've placed and the status of your hosted auctions.</p>
+            
+            <h3 class="section-title">My Recent Bids</h3>
+            <div class="activity-table-wrapper">
+                <table class="activity-table">
+                    <thead>
+                        <tr>
+                            <th>Item Name</th>
+                            <th>My Bid</th>
+                            <th>Current Highest</th>
+                            <th>Time Placed</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bids-history-body">
+                        <tr><td colspan="5">Loading bids...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="section-title">My Auction Listings</h3>
+            <div class="activity-table-wrapper">
+                <table class="activity-table">
+                    <thead>
+                        <tr>
+                            <th>Item Name</th>
+                            <th>Highest Bid</th>
+                            <th>End Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="auctions-history-body">
+                        <tr><td colspan="4">Loading listings...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- MY PROFILE TAB -->
+        <div id="tab-profile" class="tab-content">
+            <div class="flex" style="justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>My Profile</h2>
+            </div>
+            
+            <form id="profile-form" style="background: white; padding: 30px; border-radius: var(--radius); box-shadow: var(--shadow-sm); max-width: 600px;">
+                
+                <div style="background: #e0e7ff; color: #4f46e5; padding: 10px 15px; border-radius: 8px; margin-bottom: 20px; font-weight: 500;">
+                    <i class="fas fa-globe"></i> Public Information (Visible to others)
+                </div>
+                
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="prof-name" class="form-control" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="prof-email" class="form-control" disabled>
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="prof-phone" class="form-control" placeholder="E.g., +1 234 567 8900">
+                </div>
+                <div class="form-group">
+                    <label>Default Address</label>
+                    <input type="text" id="prof-address" class="form-control" placeholder="E.g., 123 Main St, City">
+                </div>
+
+                <div style="background: #fef3c7; color: #d97706; padding: 10px 15px; border-radius: 8px; margin-bottom: 20px; margin-top: 30px; font-weight: 500;">
+                    <i class="fas fa-lock"></i> Private Information (Only visible to you)
+                </div>
+
+                <div class="form-group">
+                    <label>Date of Birth</label>
+                    <input type="date" id="prof-dob" class="form-control" onchange="calculateAge()">
+                </div>
+                <div class="form-group">
+                    <label>Age</label>
+                    <input type="number" id="prof-age" class="form-control" readonly style="background: #f8fafc;">
+                </div>
+                <div class="form-group">
+                    <label>Gender</label>
+                    <select id="prof-gender" class="form-control">
+                        <option value="">Select Gender</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                        <option value="prefer_not_to_say">Prefer not to say</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="margin-top: 10px;">Save Profile Updates</button>
+            </form>
+        </div>
+    </main>
+
+    <!-- Create Auction Modal -->
+    <div id="add-modal" class="modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000;">
+        <div class="modal-content" style="background: white; padding: 30px; border-radius: 12px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto;">
+            <div class="flex" style="justify-content: space-between; margin-bottom: 20px;">
+                <h3>Create New Auction</h3>
+                <button onclick="document.getElementById('add-modal').style.display='none'" style="background:none;border:none;font-size:1.5rem;cursor:pointer;">&times;</button>
+            </div>
+            <form id="add-auction-form">
+                <div class="form-group">
+                    <label>Product Title</label>
+                    <input type="text" id="p-title" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="p-desc" class="form-control" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Product Images (Up to 5 JPG/PNG)</label>
+                    <input type="file" id="p-image" class="form-control" accept=".jpg,.jpeg,.png" multiple required>
+                </div>
+                <div class="form-group">
+                    <label>Host Address</label>
+                    <input type="text" id="p-address" class="form-control" placeholder="E.g., 123 Main St, NY" required>
+                </div>
+                <div class="form-group">
+                    <label>Starting Price ($)</label>
+                    <input type="number" id="p-price" class="form-control" min="1" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="p-category" class="form-control">
+                        <option value="electronics">Electronics</option>
+                        <option value="art">Art & Collectibles</option>
+                        <option value="vehicles">Vehicles</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Start Date</label>
+                    <input type="datetime-local" id="p-start" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>End Date</label>
+                    <input type="datetime-local" id="p-end" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">List Product</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="js/main.js"></script>
+    <script>
+        if (!isLoggedIn()) {
+            window.location.href = 'login.html';
+        }
+
+        const user = getUser();
+        document.getElementById('user-name').innerText = `Welcome, ${user.name}!`;
+        document.getElementById('user-email').innerText = user.email;
+
+        // Tab Switching Logic
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.currentTarget.classList.add('active');
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+
+            if (tabId === 'browse') loadLiveAuctions();
+            if (tabId === 'selling') loadMyAuctions();
+            if (tabId === 'activity') loadActivityHistory();
+            if (tabId === 'profile') loadProfile();
+        }
+
+        // 1. Browse Auctions Logic
+        async function loadLiveAuctions() {
+            const container = document.getElementById('live-auctions');
+            container.innerHTML = '<p>Loading live auctions...</p>';
+            try {
+                const auctions = await fetchAPI('/auctions');
+                const now = new Date().getTime();
+                
+                // Only show active auctions
+                const activeAuctions = auctions.filter(a => new Date(a.end_date).getTime() > now);
+
+                if (activeAuctions.length === 0) {
+                    container.innerHTML = '<p>No live auctions available right now.</p>';
+                    return;
+                }
+
+                container.innerHTML = activeAuctions.map(auction => `
+                    <div class="card auction-card">
+                        <div class="card-img-wrapper">
+                            <img src="${auction.image_url}" alt="${auction.title}" class="card-img" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
+                        </div>
+                        <div class="auction-content">
+                            <span class="badge" style="background: rgba(79, 70, 229, 0.1); color: var(--primary-color);">
+                                <i class="far fa-clock"></i> <span class="countdown-timer" data-end="${auction.end_date}">Loading...</span>
+                            </span>
+                            <h3 class="auction-title">${auction.title}</h3>
+                            <div class="auction-price">
+                                <span>Current Bid</span>
+                                <strong>$${Number(auction.current_highest_bid).toFixed(2)}</strong>
+                            </div>
+                            <a href="auction-details.html?id=${auction.id}" class="btn btn-primary btn-block">View & Bid</a>
+                        </div>
+                    </div>
+                `).join('');
+                initTimers();
+            } catch (error) {
+                container.innerHTML = `<p class="text-error">Error loading auctions: ${error.message}</p>`;
+            }
+        }
+
+        // 2. Selling Logic
+        async function loadMyAuctions() {
+            const container = document.getElementById('my-auctions');
+            container.innerHTML = '<p>Loading your listings...</p>';
+            try {
+                const auctions = await fetchAPI('/auctions/user/my-auctions');
+                if (auctions.length === 0) {
+                    container.innerHTML = '<p>You haven\'t listed any items yet.</p>';
+                    return;
+                }
+                container.innerHTML = auctions.map(auction => {
+                    const isEnded = new Date(auction.end_date).getTime() < new Date().getTime();
+                    return `
+                    <div class="card auction-card" style="${isEnded ? 'opacity: 0.8;' : ''}">
+                        <div class="card-img-wrapper">
+                            <img src="${auction.image_url}" alt="${auction.title}" class="card-img" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
+                        </div>
+                        <div class="auction-content">
+                            <div class="flex" style="justify-content: space-between; margin-bottom: 10px;">
+                                <span class="badge" style="background: ${isEnded ? '#fee2e2' : '#dcfce3'}; color: ${isEnded ? '#dc2626' : '#16a34a'};">
+                                    ${isEnded ? 'Ended' : 'Active'}
+                                </span>
+                                <strong>$${Number(auction.current_highest_bid).toFixed(2)}</strong>
+                            </div>
+                            <h3 class="auction-title">${auction.title}</h3>
+                            <p class="text-muted" style="font-size: 0.9rem; margin-bottom: 15px;">
+                                Ends: ${new Date(auction.end_date).toLocaleDateString()}
+                            </p>
+                            <a href="auction-details.html?id=${auction.id}" class="btn btn-outline btn-block">View Details</a>
+                        </div>
+                    </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                container.innerHTML = `<p class="text-error">Error loading your auctions: ${error.message}</p>`;
+            }
+        }
+
+        // Handle Add Auction
+        document.getElementById('add-auction-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            
+            const formData = new FormData();
+            formData.append('title', document.getElementById('p-title').value);
+            formData.append('description', document.getElementById('p-desc').value);
+            formData.append('starting_price', document.getElementById('p-price').value);
+            formData.append('category', document.getElementById('p-category').value);
+            formData.append('start_date', document.getElementById('p-start').value);
+            formData.append('end_date', document.getElementById('p-end').value);
+            formData.append('address', document.getElementById('p-address').value);
+            const files = document.getElementById('p-image').files;
+            if (files.length > 5) {
+                return showToast('You can only upload up to 5 images', 'error');
+            }
+            for (let i = 0; i < files.length; i++) {
+                formData.append('images', files[i]);
+            }
+
+            try {
+                btn.disabled = true;
+                btn.innerHTML = 'Creating...';
+                
+                // Use raw fetch for FormData to let browser set boundary
+                const token = getToken();
+                const response = await fetch('http://localhost:5000/api/auctions', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+                
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.message || 'Something went wrong');
+                
+                showToast('Auction listed successfully!');
+                document.getElementById('add-modal').style.display = 'none';
+                e.target.reset();
+                if(document.getElementById('tab-selling').classList.contains('active')) {
+                    loadMyAuctions();
+                }
+            } catch (error) {
+                showToast(error.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'List Product';
+            }
+        });
+
+        // 3. Activity History Logic
+        async function loadActivityHistory() {
+            const bidsBody = document.getElementById('bids-history-body');
+            const auctionsBody = document.getElementById('auctions-history-body');
+            
+            bidsBody.innerHTML = '<tr><td colspan="5">Loading...</td></tr>';
+            auctionsBody.innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
+
+            try {
+                const data = await fetchAPI('/auctions/user/activity');
+                
+                // Render Bids
+                if (data.bids.length === 0) {
+                    bidsBody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">You haven\'t placed any bids yet.</td></tr>';
+                } else {
+                    const now = new Date().getTime();
+                    bidsBody.innerHTML = data.bids.map(bid => {
+                        const isEnded = new Date(bid.end_date).getTime() < now;
+                        const isWinning = Number(bid.bid_amount) >= Number(bid.current_highest_bid);
+                        let statusHtml = '';
+                        
+                        if (isEnded) {
+                            statusHtml = isWinning ? 
+                                '<span class="badge" style="background:#dcfce3;color:#16a34a;">Won</span>' : 
+                                '<span class="badge" style="background:#fee2e2;color:#dc2626;">Lost</span>';
+                        } else {
+                            statusHtml = isWinning ? 
+                                '<span class="badge" style="background:#e0e7ff;color:#4f46e5;">Highest Bidder</span>' : 
+                                '<span class="badge" style="background:#fef3c7;color:#d97706;">Outbid</span>';
+                        }
+
+                        return `
+                        <tr>
+                            <td><a href="auction-details.html?id=${bid.auction_id}" style="color:var(--primary-color);font-weight:500;">${bid.title}</a></td>
+                            <td>$${Number(bid.bid_amount).toFixed(2)}</td>
+                            <td>$${Number(bid.current_highest_bid).toFixed(2)}</td>
+                            <td class="text-muted">${new Date(bid.bid_time).toLocaleString()}</td>
+                            <td>${statusHtml}</td>
+                        </tr>
+                        `;
+                    }).join('');
+                }
+
+                // Render Auctions
+                if (data.auctions.length === 0) {
+                    auctionsBody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">You haven\'t listed any auctions yet.</td></tr>';
+                } else {
+                    const now = new Date().getTime();
+                    auctionsBody.innerHTML = data.auctions.map(auction => {
+                        const isEnded = new Date(auction.end_date).getTime() < now;
+                        return `
+                        <tr>
+                            <td><a href="auction-details.html?id=${auction.id}" style="color:var(--primary-color);font-weight:500;">${auction.title}</a></td>
+                            <td>$${Number(auction.current_highest_bid).toFixed(2)}</td>
+                            <td class="text-muted">${new Date(auction.end_date).toLocaleString()}</td>
+                            <td>
+                                <span class="badge" style="background: ${isEnded ? '#fee2e2' : '#dcfce3'}; color: ${isEnded ? '#dc2626' : '#16a34a'};">
+                                    ${isEnded ? 'Ended' : 'Active'}
+                                </span>
+                            </td>
+                        </tr>
+                        `;
+                    }).join('');
+                }
+
+            } catch (error) {
+                bidsBody.innerHTML = `<tr><td colspan="5" class="text-error">Error: ${error.message}</td></tr>`;
+                auctionsBody.innerHTML = `<tr><td colspan="4" class="text-error">Error: ${error.message}</td></tr>`;
+            }
+        }
+
+        // 4. Profile Logic
+        async function loadProfile() {
+            try {
+                const data = await fetchAPI('/auth/me');
+                document.getElementById('prof-name').value = data.name || '';
+                document.getElementById('prof-email').value = data.email || '';
+                document.getElementById('prof-phone').value = data.phone_number || '';
+                document.getElementById('prof-address').value = data.address || '';
+                
+                if (data.date_of_birth) {
+                    const dob = new Date(data.date_of_birth);
+                    document.getElementById('prof-dob').value = dob.toISOString().split('T')[0];
+                }
+                
+                document.getElementById('prof-age').value = data.age || '';
+                document.getElementById('prof-gender').value = data.gender || '';
+            } catch (error) {
+                showToast('Failed to load profile', 'error');
+            }
+        }
+        
+        function calculateAge() {
+            const dobInput = document.getElementById('prof-dob').value;
+            if (!dobInput) return;
+            const dob = new Date(dobInput);
+            const diff_ms = Date.now() - dob.getTime();
+            const age_dt = new Date(diff_ms); 
+            const calculatedAge = Math.abs(age_dt.getUTCFullYear() - 1970);
+            document.getElementById('prof-age').value = calculatedAge;
+        }
+
+        document.getElementById('profile-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            try {
+                btn.disabled = true;
+                btn.innerHTML = 'Saving...';
+                
+                await fetchAPI('/auth/profile', {
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        phone_number: document.getElementById('prof-phone').value,
+                        address: document.getElementById('prof-address').value,
+                        date_of_birth: document.getElementById('prof-dob').value,
+                        age: document.getElementById('prof-age').value,
+                        gender: document.getElementById('prof-gender').value
+                    })
+                });
+                
+                showToast('Profile updated successfully!');
+            } catch (error) {
+                showToast(error.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Save Profile Updates';
+            }
+        });
+
+        // Initialize first tab
+        loadLiveAuctions();
+    </script>
+</body>
+</html>

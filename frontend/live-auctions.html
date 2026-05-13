@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Auctions - Bidder's Choice</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .page-header {
+            background: linear-gradient(135deg, #03045e 0%, #0077b6 100%);
+            color: white;
+            padding: 60px 0;
+            text-align: center;
+        }
+        .page-header h1 {
+            font-size: 2.5rem;
+            color: white;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        
+        /* Search and Categories */
+        .filter-section {
+            margin: 20px auto 40px auto;
+            position: relative;
+            z-index: 10;
+        }
+        .search-bar-container {
+            max-width: 600px;
+            margin: 0 auto 20px auto;
+            position: relative;
+            background: white;
+            border-radius: 50px;
+            box-shadow: var(--shadow-sm);
+        }
+        #search-input {
+            width: 100%;
+            padding: 16px 20px 16px 50px;
+            border-radius: 50px;
+            border: 2px solid transparent;
+            font-size: 1rem;
+            outline: none;
+            transition: var(--transition);
+        }
+        #search-input:focus {
+            border-color: var(--primary-color);
+        }
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1.2rem;
+        }
+        
+        .category-tabs {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .category-btn {
+            background: white;
+            border: 1px solid var(--border-color);
+            padding: 8px 24px;
+            border-radius: 50px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .category-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        .category-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .auction-card {
+            transition: var(--transition);
+        }
+        .auction-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .auction-grid {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 300px));
+            gap: 30px;
+            justify-content: center;
+        }
+        .desc-text {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin: 10px 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .time-box {
+            background: rgba(0, 119, 182, 0.05);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.85rem;
+            border: 1px solid var(--border-color);
+        }
+        .time-box div {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        .time-box div:last-child {
+            margin-bottom: 0;
+        }
+        .time-label {
+            font-weight: 600;
+            color: var(--text-main);
+        }
+        
+        .no-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-gavel"></i> Bidder's Choice
+            </a>
+            <div class="nav-links" id="nav-links">
+                <a href="index.html"><i class="fas fa-home"></i> Home</a>
+                <a href="live-auctions.html" class="active"><i class="fas fa-gavel"></i> Live Auctions</a>
+                <a href="login.html"><i class="fas fa-sign-in-alt"></i> Login</a>
+                <a href="register.html"><i class="fas fa-user-plus"></i> Sign Up</a>
+            </div>
+            <button class="mobile-menu-btn" id="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div class="page-header">
+        <div class="container">
+            <h1>Live Auctions</h1>
+            <p>Discover and bid on extraordinary items available right now.</p>
+        </div>
+    </div>
+
+    <section class="section" style="background-color: var(--bg-color); padding-top: 0;">
+        <div class="container">
+            
+            <!-- Search & Filters -->
+            <div class="filter-section">
+                <div class="search-bar-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="search-input" placeholder="Search for products, brands and more...">
+                </div>
+                
+                <div class="category-tabs">
+                    <button class="category-btn active" data-category="All">All Categories</button>
+                    <button class="category-btn" data-category="Watches">Watches</button>
+                    <button class="category-btn" data-category="Books">Books</button>
+                    <button class="category-btn" data-category="Sports">Sports</button>
+                    <button class="category-btn" data-category="Electronics">Electronics</button>
+                </div>
+            </div>
+
+            <div id="loading" class="text-center" style="padding: 40px;">
+                <div class="loading-spinner"></div>
+                <p>Loading active auctions...</p>
+            </div>
+            
+            <div id="auctions-container" class="grid auction-grid" style="display: none;">
+                <!-- Auctions will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="js/main.js"></script>
+    <script>
+        let globalAuctions = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadLiveAuctions();
+            setupFilters();
+        });
+
+        async function loadLiveAuctions() {
+            try {
+                const auctions = await fetchAPI('/auctions');
+                const now = new Date().getTime();
+                
+                // Only show active auctions
+                let activeAuctions = auctions.filter(a => new Date(a.end_date).getTime() > now && new Date(a.start_date).getTime() <= now);
+
+                if (activeAuctions.length === 0) {
+                    const dummyEnd = new Date(now + 3 * 24 * 60 * 60 * 1000).toISOString();
+                    const dummyStart = new Date(now - 1 * 24 * 60 * 60 * 1000).toISOString();
+                    
+                    activeAuctions = [
+                        { id: 991, title: 'Vintage Rolex Submariner', category: 'Watches', description: 'A classic 1970s Rolex Submariner in excellent condition with original box and papers. Beautiful patina on the dial.', start_date: dummyStart, end_date: dummyEnd, image_url: 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&w=800&q=80', current_highest_bid: 15500.00 },
+                        { id: 992, title: 'First Edition Harry Potter', category: 'Books', description: 'Rare first edition, first printing of Harry Potter and the Philosopher\'s Stone. Hardcover, UK edition.', start_date: dummyStart, end_date: dummyEnd, image_url: 'https://images.unsplash.com/photo-1626618012641-bfbca5a31239?auto=format&fit=crop&w=800&q=80', current_highest_bid: 45000.00 },
+                        { id: 993, title: 'Signed Michael Jordan Jersey', category: 'Sports', description: 'Authentic Chicago Bulls jersey signed by Michael Jordan during the 1996 championship season. Includes certificate of authenticity.', start_date: dummyStart, end_date: dummyEnd, image_url: 'https://images.unsplash.com/photo-1519861531473-9200262188bf?auto=format&fit=crop&w=800&q=80', current_highest_bid: 8200.00 },
+                        { id: 994, title: 'Leica M6 Classic Camera', category: 'Electronics', description: 'Pristine condition Leica M6 film camera from 1995. Fully mechanical, recently CLA\'d and ready to shoot.', start_date: dummyStart, end_date: dummyEnd, image_url: 'https://images.unsplash.com/photo-1516961642265-531546e84af2?auto=format&fit=crop&w=800&q=80', current_highest_bid: 3100.00 },
+                        { id: 995, title: 'Patek Philippe Nautilus', category: 'Watches', description: 'Stunning Patek Philippe Nautilus 5711 in stainless steel with blue dial. The holy grail of sports watches.', start_date: dummyStart, end_date: dummyEnd, image_url: 'https://images.unsplash.com/photo-1548171915-e7afefaedbc1?auto=format&fit=crop&w=800&q=80', current_highest_bid: 85000.00 }
+                    ];
+                }
+
+                globalAuctions = activeAuctions;
+                
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('auctions-container').style.display = 'grid';
+                
+                renderAuctions(globalAuctions);
+            } catch (error) {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('auctions-container').style.display = 'block';
+                document.getElementById('auctions-container').innerHTML = `<p class="text-error text-center" style="padding: 20px;">Error loading auctions: ${error.message}</p>`;
+            }
+        }
+
+        function renderAuctions(auctionsToRender) {
+            const container = document.getElementById('auctions-container');
+            
+            if (auctionsToRender.length === 0) {
+                container.innerHTML = `
+                    <div class="no-results">
+                        <i class="fas fa-search" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 20px;"></i>
+                        <h2>No products found</h2>
+                        <p class="text-muted mt-2">We couldn't find any auctions matching your search criteria.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = auctionsToRender.map(auction => {
+                const startDate = new Date(auction.start_date).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+                const endDate = new Date(auction.end_date).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+                
+                let imgUrl = auction.image_url;
+                if(imgUrl && imgUrl.startsWith('/')) imgUrl = `http://localhost:5000${imgUrl}`;
+
+                return `
+                <div class="card auction-card">
+                    <div class="card-img-wrapper">
+                        <img src="${imgUrl}" alt="${auction.title}" class="card-img" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
+                    </div>
+                    <div class="auction-content" style="padding: 20px;">
+                        <h3 class="card-title" style="font-size: 1.25rem; margin-top: 0; color: var(--primary-color);">${auction.title}</h3>
+                        <p class="desc-text">${auction.description || 'No description provided.'}</p>
+                        
+                        <div class="time-box">
+                            <div><span class="time-label">Starts:</span> <span>${startDate}</span></div>
+                            <div><span class="time-label">Ends:</span> <span style="color: var(--danger); font-weight: 500;">${endDate}</span></div>
+                        </div>
+                        
+                        <div class="card-price-row" style="border-bottom: none; margin-bottom: 15px; padding-bottom: 0;">
+                            <div class="price-col" style="width: 100%;">
+                                <span class="price-label">Current Highest Bid</span>
+                                <span class="price-value" style="color: var(--secondary-color); font-size: 1.5rem;">$${Number(auction.current_highest_bid).toFixed(2)}</span>
+                            </div>
+                        </div>
+                        
+                        <a href="auction-details.html?id=${auction.id}" class="btn btn-creative-hero btn-block" style="padding: 10px 20px; font-size: 1rem; border-radius: 8px; justify-content: center; width: 100%;">
+                            View Details & Bid
+                        </a>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        function setupFilters() {
+            const searchInput = document.getElementById('search-input');
+            const categoryBtns = document.querySelectorAll('.category-btn');
+
+            searchInput.addEventListener('input', applyFilters);
+
+            categoryBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    categoryBtns.forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    applyFilters();
+                });
+            });
+        }
+
+        function applyFilters() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const activeCategory = document.querySelector('.category-btn.active').dataset.category;
+
+            const filtered = globalAuctions.filter(auction => {
+                const matchesSearch = auction.title.toLowerCase().includes(query) || 
+                                      (auction.description && auction.description.toLowerCase().includes(query));
+                
+                // If it's real data, it might not have 'category', so we fallback to true if 'All' is selected.
+                const matchesCategory = activeCategory === 'All' || auction.category === activeCategory;
+                
+                return matchesSearch && matchesCategory;
+            });
+
+            renderAuctions(filtered);
+        }
+    </script>
+</body>
+</html>

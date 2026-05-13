@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bidder's Choice - Premium Auction Platform</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-gavel"></i> Bidder's Choice
+            </a>
+            <div class="nav-links" id="nav-links">
+                <a href="index.html" class="active"><i class="fas fa-home"></i> Home</a>
+                <a href="login.html"><i class="fas fa-sign-in-alt"></i> Login</a>
+                <a href="register.html"><i class="fas fa-user-plus"></i> Sign Up</a>
+            </div>
+            <button class="mobile-menu-btn" id="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="container hero-container">
+            <div class="hero-content">
+                <h1>Discover, Collect, and Sell Extraordinary Items</h1>
+                <p>The world's premier destination for exclusive auctions. Bid on high-quality products from verified sellers globally.</p>
+                <div class="hero-actions">
+                    <a href="live-auctions.html" class="btn-creative-hero">
+                        <span>View Auctions</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="hero-card glassmorphism">
+                    <div class="hero-card-img"></div>
+                    <div class="hero-card-details">
+                        <h3>Vintage Rolex Submariner</h3>
+                        <p class="current-bid">Current Bid: <strong>$15,500</strong></p>
+                        <div class="timer">Ends in: <span class="countdown">04:12:30</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section id="how-it-works" class="section" style="background-color: #00284d; color: white;">
+        <div class="container">
+            <div class="section-header text-center" style="justify-content: center; margin-bottom: 50px;">
+                <h2 style="color: white;">How Bidder's Choice Works</h2>
+                <p class="mt-2" style="color: #94a3b8;">A transparent, secure, and easy-to-use platform for all your auction needs.</p>
+            </div>
+            <div class="grid">
+                <div class="card dark-card text-center" style="padding: 40px 20px;">
+                    <div style="font-size: 3rem; color: var(--primary-color); margin-bottom: 20px;">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <h3>1. Create an Account</h3>
+                    <p class="text-muted mt-2">Sign up easily as a buyer or a seller. Our secure platform ensures your data is protected.</p>
+                </div>
+                <div class="card dark-card text-center" style="padding: 40px 20px;">
+                    <div style="font-size: 3rem; color: var(--secondary-color); margin-bottom: 20px;">
+                        <i class="fas fa-box-open"></i>
+                    </div>
+                    <h3>2. List or Browse Items</h3>
+                    <p class="text-muted mt-2">Sellers can list exclusive items with detailed descriptions. Buyers can browse through a wide variety of categories.</p>
+                </div>
+                <div class="card dark-card text-center" style="padding: 40px 20px;">
+                    <div style="font-size: 3rem; color: var(--warning); margin-bottom: 20px;">
+                        <i class="fas fa-gavel"></i>
+                    </div>
+                    <h3>3. Place Bids or Sell</h3>
+                    <p class="text-muted mt-2">Buyers compete in real-time by placing bids. Once the timer runs out, the highest bidder wins the item!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container footer-container">
+            <div class="footer-col">
+                <h3>Bidder's Choice</h3>
+                <p>The trusted platform for buying and selling exclusive items through secure auctions.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <a href="index.html">Home</a>
+                <a href="login.html">Login</a>
+                <a href="register.html">Sign Up</a>
+            </div>
+            <div class="footer-col">
+                <h4>Support</h4>
+                <a href="#">Help Center</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Privacy Policy</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Bidder's Choice. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
