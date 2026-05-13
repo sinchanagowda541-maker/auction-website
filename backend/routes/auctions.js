@@ -39,5 +39,7 @@ router.get('/user/my-auctions', verifyToken, auctionController.getSellerAuctions
 router.get('/user/activity', verifyToken, auctionController.getUserActivity);
 router.post('/:id/bid', verifyToken, auctionController.placeBid);
 router.post('/:id/end', verifyToken, auctionController.endAuctionEarly);
+// Delete auction (seller only)
+router.delete('/:id', verifyToken, auctionController.deleteAuction);
 
 module.exports = router;

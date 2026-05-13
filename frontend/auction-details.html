@@ -10,9 +10,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .details-container {
-            display: flex;
-            gap: 40px;
+            display: grid;
+            grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+            gap: 28px;
             margin-top: 40px;
+            align-items: start;
         }
         .details-image {
             flex: 1;
@@ -29,6 +31,49 @@
             border-radius: 16px;
             box-shadow: var(--shadow-sm);
             border: 1px solid var(--border-color);
+        }
+        .bidding-panel {
+            background: white;
+            padding: 28px;
+            border-radius: 16px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            position: sticky;
+            top: 24px;
+        }
+        .bid-summary {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin: 18px 0 20px;
+        }
+        .summary-chip {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px;
+        }
+        .summary-chip span {
+            display: block;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+        .summary-chip strong {
+            font-size: 1.05rem;
+        }
+        .bid-history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin: 22px 0 10px;
+        }
+        .bid-history-scroll {
+            max-height: 340px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
         }
         .details-title {
             font-size: 2rem;
@@ -91,10 +136,30 @@
             background: var(--bg-color);
             font-weight: 600;
         }
+
+        .raised-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 10px;
+            border-radius: 999px;
+            background: rgba(14, 165, 233, 0.1);
+            color: #0284c7;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
         
         @media (max-width: 768px) {
             .details-container {
-                flex-direction: column;
+                grid-template-columns: 1fr;
+            }
+
+            .bidding-panel {
+                position: static;
+            }
+
+            .bid-summary {
+                grid-template-columns: 1fr;
             }
         }
         
@@ -196,15 +261,19 @@
         <div id="content" style="display: none;">
             <div class="details-container">
                 <div class="details-image">
-                    <img id="auction-img" src="" alt="Auction Image" style="height: 400px; object-fit: cover;">
+                    <img id="auction-img" src="" alt="Auction Image" style="height: 400px; object-fit: cover;" onerror="this.onerror=null; this.src='https://via.placeholder.com/800x600?text=No+Image'; this.classList.add('has-fallback');">
                     <div class="thumbnails" id="image-thumbnails">
                         <!-- Thumbnails injected here -->
                     </div>
                 </div>
+
                 <div class="details-info">
-                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; gap: 16px;">
                         <span class="details-category" id="auction-category"></span>
-                        <button id="end-auction-btn" class="btn" style="display:none; background: #fee2e2; color: #dc2626; border: 1px solid #dc2626; padding: 5px 15px;">End Auction Now</button>
+                        <div style="display:flex; gap:10px; align-items:center;">
+                            <button id="end-auction-btn" class="btn" style="display:none; background: #fee2e2; color: #dc2626; border: 1px solid #dc2626; padding: 5px 15px;">End Auction Now</button>
+                            <button id="delete-auction-btn" class="btn btn-danger" style="display:none; background:#ef4444; color:white; border: 1px solid #dc2626; padding: 5px 12px;">Delete Auction</button>
+                        </div>
                     </div>
                     
                     <h1 class="details-title" id="auction-title"></h1>
@@ -224,26 +293,52 @@
                     </div>
 
                     <p id="auction-desc" class="text-muted mb-3" style="line-height: 1.8;"></p>
+                </div>
 
-                    <div class="bid-box">
-                        <p class="text-muted">Current Highest Bid</p>
-                        <div class="current-bid-amount" id="current-bid">$0.00</div>
-                        <p class="text-muted mt-2" style="font-size: 0.9rem;">Starting Price: $<span id="starting-price">0.00</span></p>
-                        
-                        <form class="bid-form" id="bid-form">
-                            <input type="number" id="bid-amount" class="form-control" step="0.01" required placeholder="Enter amount">
-                            <button type="submit" class="btn btn-primary" id="bid-btn">Place Bid</button>
-                        </form>
-                        <p id="login-prompt" style="display:none; color: var(--danger); margin-top: 10px;">Please <a href="login.html">login</a> as a buyer to place a bid.</p>
+                <aside class="bidding-panel">
+                    <div style="display: flex; justify-content: space-between; gap: 12px; align-items: start; flex-wrap: wrap;">
+                        <div>
+                            <p class="text-muted" style="margin-bottom: 6px;">Current Highest Bid</p>
+                            <div class="current-bid-amount" id="current-bid">$0.00</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <p class="text-muted" style="margin-bottom: 6px;">Starting Price</p>
+                            <div style="font-size: 1.2rem; font-weight: 700; color: var(--secondary-color);">$<span id="starting-price">0.00</span></div>
+                        </div>
                     </div>
 
-                    <h3 class="mt-4 mb-2">Bidding History</h3>
-                    <div style="max-height: 300px; overflow-y: auto;">
-                        <table class="bids-table">
+                    <div class="bid-summary">
+                        <div class="summary-chip">
+                            <span>Total Raised</span>
+                            <strong id="total-raised">$0.00</strong>
+                        </div>
+                        <div class="summary-chip">
+                            <span>Bids Placed</span>
+                            <strong id="bid-count">0</strong>
+                        </div>
+                        <div class="summary-chip">
+                            <span>Top Bidder</span>
+                            <strong id="top-bidder">-</strong>
+                        </div>
+                    </div>
+
+                    <form class="bid-form" id="bid-form">
+                        <input type="number" id="bid-amount" class="form-control" step="0.01" required placeholder="Enter amount">
+                        <button type="submit" class="btn btn-primary" id="bid-btn">Place Bid</button>
+                    </form>
+                    <p id="login-prompt" style="display:none; color: var(--danger); margin-top: 10px;">Please <a href="login.html">login</a> as a buyer to place a bid.</p>
+
+                    <div class="bid-history-header">
+                        <h3 style="margin: 0;">Bidding History</h3>
+                        <span class="raised-pill"><i class="fas fa-arrow-up"></i> Raised from starting price</span>
+                    </div>
+                    <div class="bid-history-scroll">
+                        <table class="bids-table" style="margin-top: 0;">
                             <thead>
                                 <tr>
                                     <th>Bidder</th>
-                                    <th>Amount</th>
+                                    <th>Bid</th>
+                                    <th>Raised By</th>
                                     <th>Time</th>
                                 </tr>
                             </thead>
@@ -252,22 +347,21 @@
                             </tbody>
                         </table>
                     </div>
-                    
-                    <!-- Chat Panel -->
-                    <div class="chat-panel">
-                        <div class="chat-header">
-                            <i class="fas fa-comments"></i> Live Auction Chat
-                        </div>
-                        <div class="chat-messages" id="chat-messages">
-                            <div class="text-center text-muted" style="margin: auto;">Loading chat...</div>
-                        </div>
-                        <form class="chat-input-area" id="chat-form">
-                            <input type="text" id="chat-input" class="form-control" placeholder="Type a message..." required>
-                            <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i></button>
-                        </form>
-                    </div>
+                </aside>
+            </div>
 
+            <!-- Chat Panel -->
+            <div class="chat-panel" style="margin-top: 30px;">
+                <div class="chat-header">
+                    <i class="fas fa-comments"></i> Live Auction Chat
                 </div>
+                <div class="chat-messages" id="chat-messages">
+                    <div class="text-center text-muted" style="margin: auto;">Loading chat...</div>
+                </div>
+                <form class="chat-input-area" id="chat-form">
+                    <input type="text" id="chat-input" class="form-control" placeholder="Type a message..." required>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i></button>
+                </form>
             </div>
 
             <!-- Similar Suggestions -->
@@ -288,8 +382,20 @@
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         let auctionId = urlParams.get('id');
+        
+        // Fallback to sessionStorage if URL parameter is missing
+        if (!auctionId) {
+            auctionId = sessionStorage.getItem('auctionId');
+            if (auctionId) {
+                console.log('Auction ID retrieved from sessionStorage:', auctionId);
+            }
+        } else {
+            sessionStorage.setItem('auctionId', auctionId);
+        }
+        
         console.log('Auction ID from URL:', auctionId);
         let currentHighestBid = 0;
+        let startingPrice = 0;
         let isAuctionActive = true;
 
         let socket;
@@ -364,18 +470,31 @@
                 thumbContainer.innerHTML = '';
                 
                 allImages.forEach((img, idx) => {
-                    let fullImg = img;
-                    if(fullImg.startsWith('/')) fullImg = `http://localhost:5000${fullImg}`;
-                    
+                    let fullImg = img || '';
+                    if (fullImg && fullImg.startsWith('http')) {
+                        // ok
+                    } else if (fullImg && fullImg.startsWith('/')) {
+                        fullImg = `http://localhost:5000${fullImg}`;
+                    } else if (fullImg) {
+                        fullImg = `http://localhost:5000/${fullImg}`;
+                    } else {
+                        fullImg = 'https://via.placeholder.com/800x600?text=No+Image';
+                    }
+
                     if (idx === 0) {
                         document.getElementById('auction-img').src = fullImg;
                     }
-                    
+
                     const thumb = document.createElement('img');
                     thumb.src = fullImg;
                     thumb.className = `thumbnail ${idx === 0 ? 'active' : ''}`;
+                    thumb.onerror = function() { this.onerror = null; this.src = 'https://via.placeholder.com/200x150?text=No+Image'; this.classList.add('has-fallback'); };
                     thumb.onclick = (e) => {
-                        document.getElementById('auction-img').src = fullImg;
+                        const main = document.getElementById('auction-img');
+                        main.src = fullImg;
+                        if (main.complete === false) {
+                            main.onerror = function() { this.onerror = null; this.src = 'https://via.placeholder.com/800x600?text=No+Image'; this.classList.add('has-fallback'); };
+                        }
                         document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
                         e.target.classList.add('active');
                     };
@@ -387,6 +506,7 @@
                 document.getElementById('auction-desc').innerText = auction.description;
                 document.getElementById('current-bid').innerText = `$${auction.current_highest_bid}`;
                 document.getElementById('starting-price').innerText = auction.starting_price;
+                startingPrice = Number(auction.starting_price || 0);
                 
                 // New Host Details
                 document.getElementById('host-name').innerText = auction.host_name || 'Unknown User';
@@ -418,6 +538,8 @@
                         document.getElementById('bid-form').style.display = 'none';
                     }
                 }
+
+                document.getElementById('total-raised').innerText = `$${Math.max(0, currentHighestBid - startingPrice).toFixed(2)}`;
 
                 initTimers();
 
@@ -463,18 +585,26 @@
                 }
                 const tbody = document.getElementById('bids-tbody');
                 tbody.innerHTML = '';
+
+                document.getElementById('bid-count').innerText = String(bids.length);
                 
                 if(bids.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">No bids yet. Be the first!</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No bids yet. Be the first!</td></tr>';
+                    document.getElementById('top-bidder').innerText = '-';
                     return;
                 }
+
+                const topBid = bids[0];
+                document.getElementById('top-bidder').innerText = topBid.bidder_name || '-';
 
                 bids.forEach(bid => {
                     const tr = document.createElement('tr');
                     const date = new Date(bid.bid_time).toLocaleString();
+                    const raisedBy = Math.max(0, Number(bid.bid_amount) - startingPrice);
                     tr.innerHTML = `
                         <td>${bid.bidder_name}</td>
-                        <td style="font-weight:600; color:var(--primary-color)">$${bid.bid_amount}</td>
+                        <td style="font-weight:600; color:var(--primary-color)">$${Number(bid.bid_amount).toFixed(2)}</td>
+                        <td><span class="raised-pill">$${raisedBy.toFixed(2)}</span></td>
                         <td class="text-muted" style="font-size:0.9rem">${date}</td>
                     `;
                     tbody.appendChild(tr);
@@ -553,20 +683,25 @@
                 currentHighestBid = parseFloat(data.bid_amount);
                 document.getElementById('current-bid').innerText = `$${currentHighestBid.toFixed(2)}`;
                 document.getElementById('bid-amount').min = (currentHighestBid + 1).toFixed(2);
+                document.getElementById('total-raised').innerText = `$${Math.max(0, currentHighestBid - startingPrice).toFixed(2)}`;
                 
                 // Add to history
                 const tbody = document.getElementById('bids-tbody');
-                const emptyRow = tbody.querySelector('td[colspan="3"]');
+                const emptyRow = tbody.querySelector('td[colspan="4"]');
                 if(emptyRow) emptyRow.parentElement.remove();
                 
                 const tr = document.createElement('tr');
                 const date = new Date(data.bid_time).toLocaleString();
+                const raisedBy = Math.max(0, Number(data.bid_amount) - startingPrice);
                 tr.innerHTML = `
                     <td>${data.bidder_name}</td>
-                    <td style="font-weight:600; color:var(--primary-color)">$${data.bid_amount}</td>
+                    <td style="font-weight:600; color:var(--primary-color)">$${Number(data.bid_amount).toFixed(2)}</td>
+                    <td><span class="raised-pill">$${raisedBy.toFixed(2)}</span></td>
                     <td class="text-muted" style="font-size:0.9rem">${date}</td>
                 `;
                 tbody.insertBefore(tr, tbody.firstChild);
+                document.getElementById('bid-count').innerText = String(tbody.querySelectorAll('tr').length);
+                document.getElementById('top-bidder').innerText = data.bidder_name || '-';
                 
                 showToast(`New bid placed: $${data.bid_amount} by ${data.bidder_name}`);
             });
@@ -600,8 +735,16 @@
                 }
 
                 container.innerHTML = similar.map(auction => {
-                    let imgUrl = auction.image_url;
-                    if(imgUrl.startsWith('/')) imgUrl = `http://localhost:5000${imgUrl}`;
+                    let imgUrl = auction.image_url || '';
+                    if (imgUrl && imgUrl.startsWith('http')) {
+                        // absolute url, OK
+                    } else if (imgUrl && imgUrl.startsWith('/')) {
+                        imgUrl = `http://localhost:5000${imgUrl}`;
+                    } else if (imgUrl) {
+                        imgUrl = `http://localhost:5000/${imgUrl}`;
+                    } else {
+                        imgUrl = 'https://via.placeholder.com/400x300?text=No+Image';
+                    }
                     
                     return `
                     <div class="card auction-card" style="box-shadow: var(--shadow-sm);">
@@ -614,7 +757,7 @@
                                 <span>Current Bid</span>
                                 <strong>$${Number(auction.current_highest_bid).toFixed(2)}</strong>
                             </div>
-                            <a href="auction-details.html?id=${auction.id}" class="btn btn-outline btn-block" style="padding: 8px;">View</a>
+                            <a href="auction-details.html?id=${auction.id}" onclick="sessionStorage.setItem('auctionId', '${auction.id}'); window.location.assign('auction-details.html?id=${auction.id}'); return false;" class="btn btn-outline btn-block" style="padding: 8px;">View</a>
                         </div>
                     </div>
                     `;

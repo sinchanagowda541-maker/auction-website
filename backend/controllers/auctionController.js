@@ -5,6 +5,9 @@ exports.createAuction = async (req, res) => {
     let image_url = '';
     
     if (req.files && req.files.length > 0) {
+        if (req.files.length < 3) {
+            return res.status(400).json({ message: 'Please upload at least 3 images for the product' });
+        }
         // First image becomes the primary image
         image_url = `/uploads/${req.files[0].filename}`;
     } else {
@@ -212,6 +215,40 @@ exports.endAuctionEarly = async (req, res) => {
         await db.execute('UPDATE products SET end_date = NOW() WHERE id = ?', [auctionId]);
         
         res.status(200).json({ message: 'Auction ended successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+exports.deleteAuction = async (req, res) => {
+    try {
+        const auctionId = req.params.id;
+
+        // Verify ownership
+        const [auctions] = await db.execute('SELECT * FROM products WHERE id = ?', [auctionId]);
+        if (auctions.length === 0) {
+            return res.status(404).json({ message: 'Auction not found' });
+        }
+
+        if (auctions[0].seller_id !== req.userId) {
+            return res.status(403).json({ message: 'You are not the host of this auction' });
+        }
+
+        // Delete related bids and images first
+        await db.execute('DELETE FROM bids WHERE auction_id = ?', [auctionId]);
+        await db.execute('DELETE FROM product_images WHERE product_id = ?', [auctionId]);
+
+        // Delete the product
+        await db.execute('DELETE FROM products WHERE id = ?', [auctionId]);
+
+        // Notify connected clients in the auction room
+        const io = req.app.get('io');
+        if (io) {
+            io.to(`auction_${auctionId}`).emit('auction_deleted', { auctionId });
+        }
+
+        res.status(200).json({ message: 'Auction deleted successfully' });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Server error' });

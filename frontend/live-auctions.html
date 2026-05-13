@@ -267,8 +267,24 @@
                 const startDate = new Date(auction.start_date).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
                 const endDate = new Date(auction.end_date).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
                 
-                let imgUrl = auction.image_url;
-                if(imgUrl && imgUrl.startsWith('/')) imgUrl = `http://localhost:5000${imgUrl}`;
+                let imgUrl = auction.image_url || '';
+                console.log(`Auction ${auction.id} - original image_url:`, imgUrl);
+                
+                // Normalize image URL: absolute URLs pass through; leading-slash paths get host prefixed;
+                // otherwise treat as backend relative path and prefix host. If still empty use placeholder.
+                if (imgUrl && imgUrl.startsWith('http')) {
+                    // ok as-is
+                    console.log(`  → using absolute URL`);
+                } else if (imgUrl && imgUrl.startsWith('/')) {
+                    imgUrl = `http://localhost:5000${imgUrl}`;
+                    console.log(`  → prefixed with backend host:`, imgUrl);
+                } else if (imgUrl) {
+                    imgUrl = `http://localhost:5000/${imgUrl}`;
+                    console.log(`  → prefixed with backend host and slash:`, imgUrl);
+                } else {
+                    imgUrl = 'https://via.placeholder.com/400x300?text=No+Image';
+                    console.log(`  → using placeholder (no image_url)`);
+                }
 
                 const linkUrl = `auction-details.html?id=${auction.id}`;
                 console.log(`Link for auction ${auction.id}:`, linkUrl);
@@ -276,7 +292,7 @@
                 return `
                 <div class="card auction-card">
                     <div class="card-img-wrapper">
-                        <img src="${imgUrl}" alt="${auction.title}" class="card-img" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
+                        <img src="${imgUrl}" alt="${auction.title}" class="card-img" onerror="console.error('Failed to load image:', this.src); this.onerror=null; this.src='https://via.placeholder.com/400x300?text=No+Image'; this.classList.add('has-fallback');" onload="console.log('Image loaded:', this.src)">
                     </div>
                     <div class="auction-content" style="padding: 20px;">
                         <h3 class="card-title" style="font-size: 1.25rem; margin-top: 0; color: var(--primary-color);">${auction.title}</h3>
@@ -294,7 +310,7 @@
                             </div>
                         </div>
                         
-                        <a href="${linkUrl}" class="btn btn-creative-hero btn-block" style="padding: 10px 20px; font-size: 1rem; border-radius: 8px; justify-content: center; width: 100%;">
+                        <a href="${linkUrl}" onclick="sessionStorage.setItem('auctionId', '${auction.id}')" class="btn btn-creative-hero btn-block" style="padding: 10px 20px; font-size: 1rem; border-radius: 8px; justify-content: center; width: 100%;">
                             View Details & Bid
                         </a>
                     </div>

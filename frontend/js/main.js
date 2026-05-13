@@ -72,6 +72,7 @@ function updateNavBasedOnAuth() {
         navLinks.innerHTML = `
             <a href="index.html" class="${isActive('index.html') ? 'active' : ''}"><i class="fas fa-home"></i> Home</a>
             <a href="live-auctions.html" class="${isActive('live-auctions.html') ? 'active' : ''}"><i class="fas fa-gavel"></i> Live Auctions</a>
+            <a href="dashboard.html" class="${isActive('dashboard.html') ? 'active' : ''}"><i class="fas fa-th-large"></i> Dashboard</a>
             <a href="profile.html" class="${isActive('profile.html') ? 'active' : ''}"><i class="fas fa-user-circle"></i> Profile</a>
             <a href="#" onclick="logout()" class="btn btn-outline"><i class="fas fa-sign-out-alt"></i> Logout</a>
         `;

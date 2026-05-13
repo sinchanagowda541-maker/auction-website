@@ -276,6 +276,10 @@
     position: relative;
     height: 200px;
     overflow: hidden;
+    background: #f1f5f9; /* light background to show placeholders */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .dark-card {
@@ -317,6 +321,11 @@
     height: 100%;
     object-fit: cover;
     transition: var(--transition);
+}
+
+.card-img.has-fallback {
+    object-fit: contain;
+    opacity: 0.9;
 }
 
 .card:hover .card-img {
