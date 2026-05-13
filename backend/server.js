@@ -15,6 +15,10 @@ const auctionRoutes = require('./routes/auctions');
 app.use('/api/auth', authRoutes);
 app.use('/api/auctions', auctionRoutes);
 
+app.get('/', (req, res) => {
+    res.json({ message: 'Auction Backend API is running' });
+});
+
 const http = require('http');
 const { Server } = require('socket.io');
 const db = require('./config/db');

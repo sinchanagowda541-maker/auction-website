@@ -209,13 +209,17 @@
 
         async function loadLiveAuctions() {
             try {
+                console.log('Loading auctions...');
                 const auctions = await fetchAPI('/auctions');
+                console.log('API returned auctions:', auctions);
                 const now = new Date().getTime();
                 
                 // Only show active auctions
                 let activeAuctions = auctions.filter(a => new Date(a.end_date).getTime() > now && new Date(a.start_date).getTime() <= now);
+                console.log('Active auctions after filter:', activeAuctions);
 
                 if (activeAuctions.length === 0) {
+                    console.log('No active auctions from API, using dummy data...');
                     const dummyEnd = new Date(now + 3 * 24 * 60 * 60 * 1000).toISOString();
                     const dummyStart = new Date(now - 1 * 24 * 60 * 60 * 1000).toISOString();
                     
@@ -235,6 +239,7 @@
                 
                 renderAuctions(globalAuctions);
             } catch (error) {
+                console.error('Error loading auctions:', error);
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('auctions-container').style.display = 'block';
                 document.getElementById('auctions-container').innerHTML = `<p class="text-error text-center" style="padding: 20px;">Error loading auctions: ${error.message}</p>`;
@@ -243,6 +248,8 @@
 
         function renderAuctions(auctionsToRender) {
             const container = document.getElementById('auctions-container');
+            
+            console.log('Rendering auctions:', auctionsToRender);
             
             if (auctionsToRender.length === 0) {
                 container.innerHTML = `
@@ -255,12 +262,16 @@
                 return;
             }
 
-            container.innerHTML = auctionsToRender.map(auction => {
+            container.innerHTML = auctionsToRender.map((auction, idx) => {
+                console.log(`Auction ${idx}:`, auction, 'ID:', auction.id);
                 const startDate = new Date(auction.start_date).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
                 const endDate = new Date(auction.end_date).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
                 
                 let imgUrl = auction.image_url;
                 if(imgUrl && imgUrl.startsWith('/')) imgUrl = `http://localhost:5000${imgUrl}`;
+
+                const linkUrl = `auction-details.html?id=${auction.id}`;
+                console.log(`Link for auction ${auction.id}:`, linkUrl);
 
                 return `
                 <div class="card auction-card">
@@ -283,7 +294,7 @@
                             </div>
                         </div>
                         
-                        <a href="auction-details.html?id=${auction.id}" class="btn btn-creative-hero btn-block" style="padding: 10px 20px; font-size: 1rem; border-radius: 8px; justify-content: center; width: 100%;">
+                        <a href="${linkUrl}" class="btn btn-creative-hero btn-block" style="padding: 10px 20px; font-size: 1rem; border-radius: 8px; justify-content: center; width: 100%;">
                             View Details & Bid
                         </a>
                     </div>

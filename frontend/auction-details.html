@@ -287,22 +287,24 @@
     <script src="js/main.js"></script>
     <script>
         const urlParams = new URLSearchParams(window.location.search);
-        const auctionId = urlParams.get('id');
+        let auctionId = urlParams.get('id');
+        console.log('Auction ID from URL:', auctionId);
         let currentHighestBid = 0;
         let isAuctionActive = true;
 
         let socket;
 
         document.addEventListener('DOMContentLoaded', () => {
-            if (!auctionId || auctionId === 'undefined') {
+            console.log('DOMContentLoaded - auctionId:', auctionId);
+            if (!auctionId || auctionId === 'undefined' || auctionId === 'null') {
                 document.getElementById('loading').style.display = 'none';
                 const content = document.getElementById('content');
                 content.style.display = 'block';
                 content.innerHTML = `
                     <div style="text-align: center; padding: 50px;">
                         <h2><i class="fas fa-exclamation-triangle" style="color: var(--danger);"></i> Product Not Found</h2>
-                        <p class="text-muted" style="margin: 20px 0;">We couldn't find the auction you are looking for.</p>
-                        <a href="index.html" class="btn btn-primary">Go Back Home</a>
+                        <p class="text-muted" style="margin: 20px 0;">We couldn't find the auction you are looking for. (Received ID: ${auctionId})</p>
+                        <a href="live-auctions.html" class="btn btn-primary">Back to Auctions</a>
                     </div>
                 `;
                 return;

@@ -66,11 +66,20 @@ function updateNavBasedOnAuth() {
     if (!navLinks) return;
 
     const user = getUser();
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    const isActive = (page) => currentPage === page;
     if (user) {
         navLinks.innerHTML = `
-            <a href="index.html">Home</a>
-            <a href="dashboard.html">Dashboard</a>
-            <a href="#" onclick="logout()" class="btn btn-outline">Logout</a>
+            <a href="index.html" class="${isActive('index.html') ? 'active' : ''}"><i class="fas fa-home"></i> Home</a>
+            <a href="live-auctions.html" class="${isActive('live-auctions.html') ? 'active' : ''}"><i class="fas fa-gavel"></i> Live Auctions</a>
+            <a href="profile.html" class="${isActive('profile.html') ? 'active' : ''}"><i class="fas fa-user-circle"></i> Profile</a>
+            <a href="#" onclick="logout()" class="btn btn-outline"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        `;
+    } else {
+        navLinks.innerHTML = `
+            <a href="index.html" class="${isActive('index.html') ? 'active' : ''}"><i class="fas fa-home"></i> Home</a>
+            <a href="login.html" class="${isActive('login.html') ? 'active' : ''}"><i class="fas fa-sign-in-alt"></i> Login</a>
+            <a href="register.html" class="${isActive('register.html') ? 'active' : ''}"><i class="fas fa-user-plus"></i> Sign Up</a>
         `;
     }
 }
